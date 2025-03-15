@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const photo = await $unsplash("/photos/random");
+</script>
 
 <template>
   <div>

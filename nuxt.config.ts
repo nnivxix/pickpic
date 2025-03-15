@@ -9,6 +9,13 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
   ],
+  runtimeConfig: {
+    public: {
+      unsplash: {
+        accessKey: process.env.NUXT_UNSPLASH_ACCESS_KEY,
+      },
+    },
+  },
   shadcn: {
     prefix: "",
     componentDir: "./components/ui",

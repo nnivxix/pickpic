@@ -1,12 +1,18 @@
 <script setup lang="ts">
-const photo = await $unsplash("/photos/random");
+const { data: photos } = await useAsyncData("photos", () =>
+  $unsplash("/photos", {
+    params: {
+      per_page: 20,
+    },
+  })
+);
 </script>
 
 <template>
   <div>
-    <h1 class="text-4xl text-red-500">Page: index</h1>
-    <Button>Hallo</Button>
+    <!-- <HomeHero /> -->
+    <MasonryGrid>
+      <ImgCard v-for="photo in photos" :key="photo.id" :photo="photo" />
+    </MasonryGrid>
   </div>
 </template>
-
-<style scoped></style>

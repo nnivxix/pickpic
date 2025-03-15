@@ -1,5 +1,5 @@
 export const $unsplash = $fetch.create({
-  baseURL: "https://api.unsplash.com",
+  baseURL: useRuntimeConfig().public.unsplash.baseUrl,
   onRequest: async ({ options }) => {
     const runtimeConfig = useRuntimeConfig();
 

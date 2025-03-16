@@ -1,6 +1,6 @@
 <template>
-  <div class="mx-auto max-w-5xl px-4">
-    <Navbar />
-    <slot />
-  </div>
+    <div class="mx-auto px-4">
+        <Navbar />
+        <slot />
+    </div>
 </template>

@@ -17,8 +17,9 @@ if (!photo.value) {
 const unsplashLink = computed(
   () => `${photo.value?.links.html}?utm_source=pickpic&utm_medium=referral`
 );
-
+const isDownloading = ref(false);
 const download = async () => {
+  isDownloading.value = true;
   const data = await $unsplash<{ url: string }>(
     photo.value?.links.download_location!
   );
@@ -43,6 +44,8 @@ const download = async () => {
     URL.revokeObjectURL(blobUrl);
   } catch (error) {
     console.error("Download failed:", error);
+  } finally {
+    isDownloading.value = false;
   }
 };
 
@@ -88,7 +91,13 @@ const html = computed(
           </NuxtLink>
         </p>
         <ClientOnly>
-          <Button class="w-full" title="Download image" @click="download">
+          <Button
+            class="w-full"
+            title="Download image"
+            @click="download"
+            :isLoading="isDownloading"
+            :disabled="isDownloading"
+          >
             Download
           </Button>
         </ClientOnly>

@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
+    "@vueuse/nuxt",
   ],
   runtimeConfig: {
     public: {

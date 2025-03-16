@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { Photo } from "~/types/photo";
+
 definePageMeta({
   layout: "home",
 });
 
-const { data: photos } = await useAsyncData("photos", () =>
+const { data: photos } = await useAsyncData<Photo[]>("photos", () =>
   $unsplash("/photos", {
     params: {
       per_page: 20,
@@ -15,6 +17,7 @@ const { data: photos } = await useAsyncData("photos", () =>
 <template>
   <div>
     <!-- <HomeHero /> -->
+    <SearchImage />
     <MasonryGrid>
       <ImgCard v-for="photo in photos" :key="photo.id" :photo="photo" />
     </MasonryGrid>

@@ -24,5 +24,6 @@ export default defineNuxtConfig({
 
   experimental: {
     asyncContext: true,
+    typedPages: true,
   },
 });

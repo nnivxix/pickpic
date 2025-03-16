@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: "home",
+});
+
 const { data: photos } = await useAsyncData("photos", () =>
   $unsplash("/photos", {
     params: {

@@ -12,7 +12,7 @@ const keywords = ref<string[]>([
     "building",
 ]);
 
-const search = ref("");
+const search = ref<string>("");
 
 const searchPhoto = async () => {
     if (!search.value) return;

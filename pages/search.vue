@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 interface ResponseSearch {
     total: number;
@@ -9,7 +10,7 @@ interface ResponseSearch {
 const { query } = useRoute();
 
 const { data } = await useAsyncData<ResponseSearch>("search", () =>
-    $unsplash("/search-photos", {
+    $unsplash(API_PATH.SEARCH_PHOTOS, {
         params: {
             query: query.q,
             per_page: 20,
@@ -21,6 +22,11 @@ const { data } = await useAsyncData<ResponseSearch>("search", () =>
 <template>
     <div class="relative">
         <MasonryGrid>
+            <ImgCard
+                v-for="photo in data?.results"
+                :key="photo.id"
+                :photo="photo"
+            />
             <ImgCard
                 v-for="photo in data?.results"
                 :key="photo.id"

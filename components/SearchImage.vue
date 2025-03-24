@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRouteQuery } from "@vueuse/router";
+import { buttonVariants } from "./ui/button";
+
 const keywords = ref<string[]>([
     "nature",
     "mountain",
@@ -12,11 +15,20 @@ const keywords = ref<string[]>([
     "building",
 ]);
 
-const search = ref<string>("");
+const searchQuery = useRouteQuery<string>("q");
+
+const emit = defineEmits<{
+    refresh: [];
+}>();
 
 const searchPhoto = async () => {
-    if (!search.value) return;
-    await navigateTo({ path: "/search", query: { q: search.value } });
+    await navigateTo({
+        name: "search",
+        query: { q: searchQuery.value },
+        force: true,
+    });
+
+    emit("refresh");
 };
 </script>
 
@@ -34,7 +46,7 @@ const searchPhoto = async () => {
                 </div>
                 <form @submit.prevent="searchPhoto" class="w-full">
                     <Input
-                        v-model:modelValue="search"
+                        v-model:modelValue="searchQuery"
                         id="search"
                         type="search"
                         placeholder="Search photos..."
@@ -43,21 +55,15 @@ const searchPhoto = async () => {
                 <div class="space-y-2">
                     <h2 class="text-lg font-semibold">Popular keywords</h2>
                     <div class="flex flex-wrap gap-2">
-                        <Button
+                        <NuxtLink
                             v-for="keyword in keywords"
                             :key="keyword"
-                            variant="outline"
+                            :to="{ name: 'search', query: { q: keyword } }"
+                            :class="buttonVariants({ variant: 'outline' })"
                             size="sm"
-                            @click="
-                                async () =>
-                                    await navigateTo({
-                                        path: '/search',
-                                        query: { q: keyword },
-                                    })
-                            "
                         >
                             {{ keyword }}
-                        </Button>
+                        </NuxtLink>
                     </div>
                 </div>
             </div>

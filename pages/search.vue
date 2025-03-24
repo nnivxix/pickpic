@@ -8,36 +8,33 @@ interface ResponseSearch {
 }
 
 const { query } = useRoute();
+const searchQuery = useRouteQuery("q", "");
 
-const { data } = await useAsyncData<ResponseSearch>("search", () =>
-    $unsplash(API_PATH.SEARCH_PHOTOS, {
-        params: {
-            query: query.q,
-            per_page: 20,
-        },
-    })
+const { data, refresh } = await useAsyncData<ResponseSearch>(
+    "search",
+    () =>
+        $unsplash(API_PATH.SEARCH_PHOTOS, {
+            params: {
+                query: searchQuery.value,
+                per_page: 20,
+            },
+        }),
+    {
+        deep: true,
+    }
 );
 </script>
 
 <template>
     <div class="relative">
-        <MasonryGrid>
-            <ImgCard
-                v-for="photo in data?.results"
-                :key="photo.id"
-                :photo="photo"
-            />
-            <ImgCard
-                v-for="photo in data?.results"
-                :key="photo.id"
-                :photo="photo"
-            />
+        <SearchImage v-if="!query.q" @refresh="refresh" />
+        <MasonryGrid v-if="data?.results">
             <ImgCard
                 v-for="photo in data?.results"
                 :key="photo.id"
                 :photo="photo"
             />
         </MasonryGrid>
-        <FloatingSearch />
+        <FloatingSearch @refresh="refresh" />
     </div>
 </template>

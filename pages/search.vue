@@ -9,28 +9,56 @@ interface ResponseSearch {
 
 const { query } = useRoute();
 const searchQuery = useRouteQuery("q", "");
+const page = ref(1);
+const { arrivedState } = useScroll(document);
 
-const { data, refresh } = await useAsyncData<ResponseSearch>(
+const { data: photos, refresh } = await useAsyncData<ResponseSearch>(
     "search",
     () =>
         $unsplash(API_PATH.SEARCH_PHOTOS, {
             params: {
                 query: searchQuery.value,
                 per_page: 20,
+                page: page.value,
             },
         }),
     {
         deep: true,
     }
 );
+const counterCurrentFetchResults = ref(photos.value?.results.length ?? 0);
+
+watch(arrivedState, async (arrived) => {
+    if (arrived.bottom && counterCurrentFetchResults.value > 0) {
+        const data = await $unsplash<ResponseSearch>(API_PATH.SEARCH_PHOTOS, {
+            params: {
+                query: searchQuery.value,
+                per_page: 20,
+                page: page.value + 1,
+            },
+        });
+
+        if (photos.value) {
+            photos.value.results = [
+                ...photos.value.results,
+                ...data.results,
+            ].filter(
+                (photo, index, self) =>
+                    index === self.findIndex((t) => t.id === photo.id)
+            );
+        }
+        counterCurrentFetchResults.value = data.results.length;
+        page.value += 1;
+    }
+});
 </script>
 
 <template>
     <div class="relative">
         <SearchImage v-if="!query.q" @refresh="refresh" />
-        <MasonryGrid v-if="data?.results">
+        <MasonryGrid v-if="photos?.results">
             <ImgCard
-                v-for="photo in data?.results"
+                v-for="photo in photos?.results"
                 :key="photo.id"
                 :photo="photo"
             />

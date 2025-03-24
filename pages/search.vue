@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
+
 interface ResponseSearch {
     total: number;
     total_pages: number;
@@ -26,6 +27,7 @@ const { data: photos, refresh } = await useAsyncData<ResponseSearch>(
         deep: true,
     }
 );
+
 const counterCurrentFetchResults = ref(photos.value?.results.length ?? 0);
 
 watch(arrivedState, async (arrived) => {

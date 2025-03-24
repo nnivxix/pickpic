@@ -53,6 +53,11 @@ watch(arrivedState, async (arrived) => {
         page.value += 1;
     }
 });
+
+useSeoMeta({
+    title: `PickPic - Search: ${searchQuery.value}`,
+    description: `Search results for ${searchQuery.value}`,
+});
 </script>
 
 <template>

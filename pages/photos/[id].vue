@@ -2,7 +2,8 @@
 import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 
-const { params } = useRoute("photos-id");
+const { params, fullPath } = useRoute("photos-id");
+const runtimeConfig = useRuntimeConfig();
 
 const { data: photo } = await useAsyncData<Photo>("photo", () =>
     $unsplash(`${API_PATH.PHOTOS}/${params.id}`)
@@ -63,6 +64,26 @@ const html = computed(
             photo?.value?.description || photo?.value?.alt_description
         }" />`
 );
+
+useSeoMeta({
+    title: `PickPic - ${
+        photo.value?.description || photo.value?.alt_description
+    }`,
+    description: photo.value?.description || photo.value?.alt_description,
+    ogImage: photo.value?.urls.small,
+    ogUrl: runtimeConfig.public.appUrl + fullPath,
+    ogTitle: `PickPic - ${
+        photo.value?.description || photo.value?.alt_description
+    }`,
+    ogDescription: photo.value?.description || photo.value?.alt_description,
+    twitterTitle: `PickPic - ${
+        photo.value?.description || photo.value?.alt_description
+    }`,
+    twitterDescription:
+        photo.value?.description || photo.value?.alt_description,
+    twitterImage: photo.value?.urls.small,
+    twitterCard: "summary_large_image",
+});
 </script>
 <template>
     <div class="max-w-6xl mx-auto">

@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 
 const { params } = useRoute("photos-id");
 
 const { data: photo } = await useAsyncData<Photo>("photo", () =>
-    $unsplash(`/photos/${params.id}`)
+    $unsplash(`${API_PATH.PHOTOS}/${params.id}`)
 );
 
 if (!photo.value) {

@@ -52,13 +52,13 @@ const download = async () => {
 const markdown = computed(
     () =>
         `![${photo?.value?.description || photo?.value?.alt_description}](${
-            photo?.value?.urls.regular
+            photo?.value?.urls.small
         })`
 );
 
 const html = computed(
     () =>
-        `<img src="${photo?.value?.urls.regular}" alt="${
+        `<img src="${photo?.value?.urls.small}" alt="${
             photo?.value?.description || photo?.value?.alt_description
         }" />`
 );
@@ -105,7 +105,7 @@ const html = computed(
                             :isLoading="isDownloading"
                             :disabled="isDownloading"
                         >
-                            Download
+                            Download Original Photo
                         </Button>
                     </ClientOnly>
                 </div>

@@ -4,7 +4,7 @@ import type { Photo } from "~/types/photo";
 const { data: photos } = await useAsyncData<Photo[]>("photos", () =>
     $unsplash("/photos", {
         params: {
-            per_page: 20,
+            per_page: 30,
         },
     })
 );

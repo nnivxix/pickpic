@@ -5,6 +5,9 @@ const { photo } = defineProps<{
     photo: Photo;
 }>();
 
+/**
+ * @link https://w3bits.com/css-grid-masonry/
+ */
 const span = computed(() => Math.ceil(photo.height / photo.width));
 </script>
 <template>

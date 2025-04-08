@@ -41,7 +41,7 @@ const searchPhoto = async () => {
                 <div class="text-center">
                     <h1 class="text-4xl font-bold">PickPic</h1>
                     <p class="text-lg">
-                        The best place to find free photos for your blog
+                        Browse, Copy, and Embed – It's That Simple!
                     </p>
                 </div>
                 <form @submit.prevent="searchPhoto" class="w-full">

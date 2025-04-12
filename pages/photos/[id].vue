@@ -3,6 +3,9 @@ import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 
 const { params, fullPath } = useRoute("photos-id");
+
+const TITLE_TRUNCATION_LIMIT = 54;
+const DESCRIPTION_TRUNCATION_LIMIT = 155;
 const runtimeConfig = useRuntimeConfig();
 
 const { data: photo } = await useAsyncData<Photo>("photo", () =>
@@ -65,22 +68,30 @@ const html = computed(
         }" />`
 );
 
+const title = computed(() => {
+    const text = photo.value?.description || photo.value?.alt_description || "";
+    return `PickPic - ${
+        text.length > TITLE_TRUNCATION_LIMIT
+            ? text.substring(0, TITLE_TRUNCATION_LIMIT - 3) + "..."
+            : text
+    }`;
+});
+const description = computed(() => {
+    const text = photo.value?.description || photo.value?.alt_description || "";
+    return text.length > DESCRIPTION_TRUNCATION_LIMIT
+        ? text.substring(0, DESCRIPTION_TRUNCATION_LIMIT - 3) + "..."
+        : text;
+});
+
 useSeoMeta({
-    title: `PickPic - ${
-        photo.value?.description || photo.value?.alt_description
-    }`,
-    description: photo.value?.description || photo.value?.alt_description,
+    title,
+    description,
     ogImage: photo.value?.urls.small,
     ogUrl: runtimeConfig.public.appUrl + fullPath,
-    ogTitle: `PickPic - ${
-        photo.value?.description || photo.value?.alt_description
-    }`,
-    ogDescription: photo.value?.description || photo.value?.alt_description,
-    twitterTitle: `PickPic - ${
-        photo.value?.description || photo.value?.alt_description
-    }`,
-    twitterDescription:
-        photo.value?.description || photo.value?.alt_description,
+    ogTitle: title,
+    ogDescription: description,
+    twitterTitle: title,
+    twitterDescription: description,
     twitterImage: photo.value?.urls.small,
     twitterCard: "summary_large_image",
 });

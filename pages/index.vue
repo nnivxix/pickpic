@@ -36,8 +36,6 @@ watch(arrivedState, async (arrived) => {
 
 useSeoMeta({
     title: "PickPic",
-    description:
-        "PickPic is a free image gallery where you can download high-quality photos from Unsplash.",
 });
 </script>
 

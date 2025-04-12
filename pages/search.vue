@@ -25,6 +25,7 @@ const { data: photos, refresh } = await useAsyncData<ResponseSearch>(
         }),
     {
         deep: true,
+        watch: [searchQuery],
     }
 );
 

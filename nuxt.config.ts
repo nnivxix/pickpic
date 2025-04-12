@@ -9,7 +9,15 @@ export default defineNuxtConfig({
                 {
                     name: "description",
                     content:
-                        "Pickpic is a free image library that offers high-quality photos for your personal and commercial use.",
+                        "Seamless Image Exploration & Markdown Generation.",
+                },
+                {
+                    name: "og:image",
+                    content: process.env.NUXT_APP_URL + "/og-image.jpg",
+                },
+                {
+                    name: "twitter:image",
+                    content: process.env.NUXT_APP_URL + "/og-image.jpg",
                 },
             ],
         },

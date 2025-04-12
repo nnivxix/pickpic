@@ -171,12 +171,12 @@ useSeoMeta({
                         <SnippetCode
                             label="Markdown"
                             :code="markdown"
-                            :urlDownload="photo?.links.download_location"
+                            :downloadUrl="photo?.links.download_location"
                         />
                         <SnippetCode
                             label="HTML"
                             :code="html"
-                            :urlDownload="photo?.links.download_location"
+                            :downloadUrl="photo?.links.download_location"
                         />
                     </div>
                 </div>

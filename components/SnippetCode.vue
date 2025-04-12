@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const { label, code, urlDownload } = defineProps<{
+const { label, code, downloadUrl } = defineProps<{
     label: string;
     code: string;
-    urlDownload?: string;
+    downloadUrl?: string;
 }>();
 
 const { copy, copied, isSupported } = useClipboard({ source: code });
@@ -15,14 +15,14 @@ const copyText = async () => {
         return;
     }
 
-    if (!urlDownload) {
+    if (!downloadUrl) {
         toast({
             title: "No download URL provided",
         });
         return;
     }
 
-    await $unsplash(urlDownload);
+    await $unsplash(downloadUrl);
 
     await copy(code);
     toast({

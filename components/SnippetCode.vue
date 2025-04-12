@@ -22,9 +22,7 @@ const copyText = async () => {
         return;
     }
 
-    await $unsplash(urlDownload, {
-        responseType: "blob",
-    });
+    await $unsplash(urlDownload);
 
     await copy(code);
     toast({

@@ -22,12 +22,19 @@ const copyText = async () => {
         return;
     }
 
-    await $unsplash(downloadUrl);
-
-    await copy(code);
-    toast({
-        title: "Copied to clipboard",
-    });
+    try {
+        await $unsplash(downloadUrl);
+        await copy(code);
+        toast({
+            title: "Copied to clipboard",
+        });
+    } catch (error) {
+        console.error("Error copying text:", error);
+        toast({
+            title: "Failed to copy",
+            description: "Please try again.",
+        });
+    }
 };
 </script>
 

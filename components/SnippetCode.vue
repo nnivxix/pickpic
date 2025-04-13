@@ -23,7 +23,11 @@ const copyText = async () => {
     }
 
     try {
-        await $unsplash(downloadUrl);
+        await $fetch("/api/photos/download", {
+            params: {
+                location: downloadUrl,
+            },
+        });
         await copy(code);
         toast({
             title: "Copied to clipboard",

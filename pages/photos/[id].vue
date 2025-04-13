@@ -22,9 +22,18 @@ const unsplashLink = computed(
 const isDownloading = ref(false);
 const download = async () => {
     isDownloading.value = true;
-    const data = await $unsplash<{ url: string }>(
-        photo.value?.links.download_location!
-    );
+    if (!photo.value?.links.download_location) {
+        toast({
+            title: "No download URL provided",
+        });
+        isDownloading.value = false;
+        return;
+    }
+    const data = await $fetch<{ url: string }>("/api/photos/download", {
+        params: {
+            location: photo.value?.links.download_location,
+        },
+    });
 
     try {
         const blob = await $fetch<Blob>(data.url, {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 
 interface ResponseSearch {
@@ -13,19 +12,16 @@ const searchQuery = useRouteQuery("q", "");
 const page = ref(1);
 const { arrivedState } = useScroll(document);
 
-const { data: photos, refresh } = await useAsyncData<ResponseSearch>(
-    "search",
-    () =>
-        $unsplash(API_PATH.SEARCH_PHOTOS, {
-            params: {
-                query: searchQuery.value,
-                per_page: 20,
-                page: page.value,
-            },
-        }),
+const { data: photos, refresh } = await useFetch<ResponseSearch>(
+    "/api/photos/search",
     {
-        deep: true,
+        params: {
+            query: searchQuery.value,
+            per_page: 20,
+            page: page.value,
+        },
         watch: [searchQuery],
+        immediate: true,
     }
 );
 
@@ -33,7 +29,7 @@ const counterCurrentFetchResults = ref(photos.value?.results.length ?? 0);
 
 watch(arrivedState, async (arrived) => {
     if (arrived.bottom && counterCurrentFetchResults.value > 0) {
-        const data = await $unsplash<ResponseSearch>(API_PATH.SEARCH_PHOTOS, {
+        const data = await $fetch<ResponseSearch>("/api/photos/search", {
             params: {
                 query: searchQuery.value,
                 per_page: 20,

@@ -6,6 +6,16 @@ export default defineEventHandler((event) => {
         event
     );
 
+    if (!query.query) {
+        setResponseHeader(event, "Content-Type", "application/json");
+        setResponseStatus(event, 422, "Unprocessable Entity");
+
+        return {
+            statusCode: 422,
+            statusMessage: "Query parameter is required",
+        };
+    }
+
     const unsplash = $unsplash(API_PATH.SEARCH_PHOTOS, {
         params: {
             query: query.query,

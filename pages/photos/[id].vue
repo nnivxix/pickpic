@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 
 const { params, fullPath } = useRoute("photos-id");
@@ -8,9 +7,7 @@ const TITLE_TRUNCATION_LIMIT = 54;
 const DESCRIPTION_TRUNCATION_LIMIT = 155;
 const runtimeConfig = useRuntimeConfig();
 
-const { data: photo } = await useAsyncData<Photo>("photo", () =>
-    $unsplash(`${API_PATH.PHOTOS}/${params.id}`)
-);
+const { data: photo } = await useFetch<Photo>(`/api/photos/${params.id}`);
 
 if (!photo.value) {
     throw createError({

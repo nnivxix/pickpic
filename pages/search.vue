@@ -12,16 +12,19 @@ const searchQuery = useRouteQuery("q", "");
 const page = ref(1);
 const { arrivedState } = useScroll(document);
 
-const { data: photos, refresh } = await useFetch<ResponseSearch>(
-    "/api/photos/search",
+const { data: photos, refresh } = await useAsyncData<ResponseSearch>(
+    "search",
+    () =>
+        $fetch("/api/photos/search", {
+            params: {
+                query: searchQuery.value,
+                per_page: 20,
+                page: page.value,
+            },
+        }),
     {
-        params: {
-            query: searchQuery.value,
-            per_page: 20,
-            page: page.value,
-        },
+        deep: true,
         watch: [searchQuery],
-        immediate: true,
     }
 );
 

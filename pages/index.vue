@@ -5,14 +5,12 @@ import type { Photo } from "~/types/photo";
 const { arrivedState } = useScroll(document);
 const page = ref(1);
 
-const { data: photos } = await useAsyncData<Photo[]>("photos", () =>
-    $unsplash(API_PATH.PHOTOS, {
-        params: {
-            per_page: 30,
-            page: page.value,
-        },
-    })
-);
+const { data: photos } = await useFetch<Photo[]>("/api/photos", {
+    params: {
+        per_page: 30,
+        page: page.value,
+    },
+});
 
 const counterCurrentFetchResults = ref(photos.value?.length ?? 0);
 

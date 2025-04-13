@@ -167,10 +167,20 @@ useSeoMeta({
                             </p>
                         </CardContent>
                     </Card>
-                    <div class="space-y-4">
-                        <SnippetCode label="Markdown" :code="markdown" />
-                        <SnippetCode label="HTML" :code="html" />
-                    </div>
+                    <ClientOnly>
+                        <div class="space-y-4">
+                            <SnippetCode
+                                label="Markdown"
+                                :code="markdown"
+                                :downloadUrl="photo?.links.download_location"
+                            />
+                            <SnippetCode
+                                label="HTML"
+                                :code="html"
+                                :downloadUrl="photo?.links.download_location"
+                            />
+                        </div>
+                    </ClientOnly>
                 </div>
             </div>
         </div>

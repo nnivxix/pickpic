@@ -19,46 +19,6 @@ if (!photo.value) {
 const unsplashLink = computed(
     () => `${photo.value?.links.html}?utm_source=pickpic&utm_medium=referral`
 );
-const isDownloading = ref(false);
-const download = async () => {
-    isDownloading.value = true;
-    if (!photo.value?.links.download_location) {
-        toast({
-            title: "No download URL provided",
-        });
-        isDownloading.value = false;
-        return;
-    }
-    const data = await $fetch<{ url: string }>("/api/photos/download", {
-        params: {
-            location: photo.value?.links.download_location,
-        },
-    });
-
-    try {
-        const blob = await $fetch<Blob>(data.url, {
-            responseType: "blob",
-        });
-
-        const blobUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.setAttribute(
-            "download",
-            `${photo.value?.slug || "unsplash-image"}.jpg`
-        );
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-        console.error("Download failed:", error);
-    } finally {
-        isDownloading.value = false;
-    }
-};
 
 const markdown = computed(
     () =>
@@ -136,17 +96,6 @@ useSeoMeta({
                             Unsplash
                         </NuxtLink>
                     </p>
-                    <ClientOnly>
-                        <Button
-                            class="w-full"
-                            title="Download photo"
-                            @click="download"
-                            :isLoading="isDownloading"
-                            :disabled="isDownloading"
-                        >
-                            Download Original Photo
-                        </Button>
-                    </ClientOnly>
                 </div>
                 <div
                     class="flex flex-col gap-4 justify-between md:col-span-1 col-span-full"

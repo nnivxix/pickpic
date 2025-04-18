@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 
 interface ResponseSearch {
@@ -16,7 +15,7 @@ const { arrivedState } = useScroll(document);
 const { data: photos, refresh } = await useAsyncData<ResponseSearch>(
     "search",
     () =>
-        $unsplash(API_PATH.SEARCH_PHOTOS, {
+        $fetch("/api/photos/search", {
             params: {
                 query: searchQuery.value,
                 per_page: 20,
@@ -33,7 +32,7 @@ const counterCurrentFetchResults = ref(photos.value?.results.length ?? 0);
 
 watch(arrivedState, async (arrived) => {
     if (arrived.bottom && counterCurrentFetchResults.value > 0) {
-        const data = await $unsplash<ResponseSearch>(API_PATH.SEARCH_PHOTOS, {
+        const data = await $fetch<ResponseSearch>("/api/photos/search", {
             params: {
                 query: searchQuery.value,
                 per_page: 20,

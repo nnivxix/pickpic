@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 
 const { params, fullPath } = useRoute("photos-id");
@@ -8,9 +7,7 @@ const TITLE_TRUNCATION_LIMIT = 54;
 const DESCRIPTION_TRUNCATION_LIMIT = 155;
 const runtimeConfig = useRuntimeConfig();
 
-const { data: photo } = await useAsyncData<Photo>("photo", () =>
-    $unsplash(`${API_PATH.PHOTOS}/${params.id}`)
-);
+const { data: photo } = await useFetch<Photo>(`/api/photos/${params.id}`);
 
 if (!photo.value) {
     throw createError({
@@ -22,37 +19,6 @@ if (!photo.value) {
 const unsplashLink = computed(
     () => `${photo.value?.links.html}?utm_source=pickpic&utm_medium=referral`
 );
-const isDownloading = ref(false);
-const download = async () => {
-    isDownloading.value = true;
-    const data = await $unsplash<{ url: string }>(
-        photo.value?.links.download_location!
-    );
-
-    try {
-        const blob = await $fetch<Blob>(data.url, {
-            responseType: "blob",
-        });
-
-        const blobUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.setAttribute(
-            "download",
-            `${photo.value?.slug || "unsplash-image"}.jpg`
-        );
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-        console.error("Download failed:", error);
-    } finally {
-        isDownloading.value = false;
-    }
-};
 
 const markdown = computed(
     () =>
@@ -130,17 +96,6 @@ useSeoMeta({
                             Unsplash
                         </NuxtLink>
                     </p>
-                    <ClientOnly>
-                        <Button
-                            class="w-full"
-                            title="Download photo"
-                            @click="download"
-                            :isLoading="isDownloading"
-                            :disabled="isDownloading"
-                        >
-                            Download Original Photo
-                        </Button>
-                    </ClientOnly>
                 </div>
                 <div
                     class="flex flex-col gap-4 justify-between md:col-span-1 col-span-full"

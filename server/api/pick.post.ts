@@ -110,12 +110,12 @@ export default defineEventHandler(async (event) => {
             },
         };
     } catch (error) {
-        setResponseStatus(event, 500, "Internal Server Error");
+        setResponseStatus(event, 404, "Not Found");
         setResponseHeader(event, "Content-Type", "application/json");
         return {
-            statusCode: 500,
+            statusCode: 404,
             body: {
-                message: "Error fetching data",
+                message: "Image not found",
             },
             data: null,
         };

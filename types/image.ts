@@ -16,3 +16,11 @@ export interface Image {
         width: string;
     }[];
 }
+
+export interface ImageResponse {
+    statusCode: number;
+    body: {
+        message: string;
+    };
+    data: Image | null;
+}

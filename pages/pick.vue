@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import type { Image } from "~/types/image";
-import { responseImage } from "~/data/image";
+import type { Image, ImageResponse } from "~/types/image";
+import { FetchError } from "ofetch";
+
+const { query } = useRoute();
 
 const form = ref({
-    url: "",
+    url: query.url as string,
 });
 const status = ref<"idle" | "loading" | "success" | "error">("idle");
 const error = ref<string | null>(null);
@@ -12,13 +14,7 @@ const image = ref<Image>();
 const pick = async () => {
     try {
         status.value = "loading";
-        const data = await $fetch<{
-            statusCode: number;
-            body: {
-                message: string;
-            };
-            data: Image;
-        }>("/api/pick", {
+        const data = await $fetch<ImageResponse>("/api/pick", {
             method: "POST",
             body: { ...form.value },
         });
@@ -29,31 +25,51 @@ const pick = async () => {
     } catch (e) {
         console.error("Error picking:", e);
         status.value = "error";
-        if (e instanceof Error) {
-            error.value = e.message;
-        } else if (typeof e === "string") {
-            error.value = e;
-        } else {
-            error.value = "Unknown error";
+
+        if (e instanceof FetchError) {
+            error.value = e.data.body.message;
         }
     }
 };
 
+const { data: responseImage, error: errorImage } =
+    await useAsyncData<ImageResponse>(
+        "image",
+        () =>
+            $fetch("/api/pick", {
+                method: "POST",
+                body: { ...form.value },
+            }),
+        {
+            immediate: query.url ? true : false,
+        }
+    );
+
+if (responseImage.value?.data) {
+    status.value = "success";
+    image.value = responseImage.value.data;
+}
+if (errorImage.value?.data) {
+    status.value = "error";
+    error.value = (errorImage.value.data as { body?: { message: string } }).body
+        ?.message as string;
+}
+
 const markdown = computed(() => {
-    return `![${image.value?.description || image.value?.caption}](${
-        image.value?.conversions.at(0)?.src
-    })`;
+    return `![${image.value?.description || image.value?.caption} by ${
+        image.value?.author.name
+    }](${image.value?.conversions.at(0)?.src})`;
 });
 const html = computed(() => {
     return `<img src="${image.value?.conversions.at(0)?.src}" alt="${
         image.value?.description || image.value?.caption
-    }" />`;
+    } by ${image.value?.author.name}" />`;
 });
 </script>
 
 <template>
     <main>
-        <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
             <form class="grid grid-cols-6 gap-4" @submit.prevent="pick">
                 <Input
                     v-model="form.url"
@@ -63,78 +79,78 @@ const html = computed(() => {
                 <Button class="col-span-1">Pick</Button>
             </form>
         </div>
-        <div class="max-w-7xl mx-auto px-4 py-8">
-            <div v-if="status === 'loading'">
-                <p>Loading...</p>
-            </div>
-            <div v-if="status === 'error'">
-                <p class="text-destructive">Error: {{ error }}</p>
-            </div>
-            <div v-if="status === 'success'" class="container mx-auto py-8">
-                <div class="grid grid-cols-2 gap-4 h-full">
-                    <div class="col-span-1">
-                        <div
-                            class="col-span-1 overflow-clip aspect-square rounded-lg"
-                            :style="{
-                                backgroundColor: image?.color,
-                            }"
-                        >
-                            <img
-                                v-if="image"
-                                :src="image.conversions.at(0)?.src"
-                                :alt="image.description"
-                                class="w-full h-full object-contain rounded-lg shadow-lg"
-                            />
+        <ClientOnly>
+            <div class="max-w-7xl mx-auto px-4">
+                <div v-if="status === 'loading'">
+                    <p>Loading...</p>
+                </div>
+                <div v-if="status === 'error'">
+                    <p class="text-destructive">Error: {{ error }}</p>
+                </div>
+                <div v-if="status === 'success'" class="container mx-auto py-8">
+                    <div class="grid grid-cols-2 gap-4 h-full">
+                        <div class="col-span-full md:col-span-1">
+                            <div
+                                class="col-span-1 overflow-clip aspect-square rounded-lg"
+                                :style="{
+                                    backgroundColor: image?.color,
+                                }"
+                            >
+                                <img
+                                    v-if="image"
+                                    :src="image.conversions.at(0)?.src"
+                                    :alt="image.description"
+                                    class="w-full h-full object-contain rounded-lg shadow-lg"
+                                />
+                            </div>
+                            <p
+                                class="italic text-sm text-muted-foreground text-center py-2"
+                            >
+                                <span class="">Photo by: </span>
+                                <NuxtLink
+                                    :to="image?.author.link"
+                                    class="underline"
+                                    target="_blank"
+                                >
+                                    {{ image?.author.name }}
+                                </NuxtLink>
+                                <span class=""> on </span>
+                                <NuxtLink
+                                    :to="image?.original"
+                                    class="underline"
+                                    target="_blank"
+                                >
+                                    Unsplash
+                                </NuxtLink>
+                            </p>
                         </div>
-                        <p
-                            class="italic text-sm text-muted-foreground text-center py-2"
+                        <div
+                            class="flex flex-col gap-4 justify-between md:col-span-1 col-span-full"
                         >
-                            <span class="">Photo by: </span>
-                            <NuxtLink
-                                :to="image?.author.link"
-                                class="underline"
-                                target="_blank"
-                            >
-                                {{ image?.author.name }}
-                            </NuxtLink>
-                            <span class=""> on </span>
-                            <NuxtLink
-                                :to="image?.original"
-                                class="underline"
-                                target="_blank"
-                            >
-                                Unsplash
-                            </NuxtLink>
-                        </p>
-                    </div>
-                    <div
-                        class="flex flex-col gap-4 justify-between md:col-span-1 col-span-full"
-                    >
-                        <Card>
-                            <CardHeader>
-                                <h1 class="text-lg font-semibold">
-                                    {{
-                                        image?.description ??
-                                        image?.caption ??
-                                        "No description"
-                                    }}
-                                </h1>
-                            </CardHeader>
-                            <CardContent class="space-y-2">
-                                <p class="text-sm">
-                                    Original URI:
-                                    <NuxtLink
-                                        class="underline"
-                                        :to="image?.original"
-                                        :external="true"
-                                        target="_blank"
-                                    >
-                                        {{ image?.original }}
-                                    </NuxtLink>
-                                </p>
-                            </CardContent>
-                        </Card>
-                        <ClientOnly>
+                            <Card>
+                                <CardHeader>
+                                    <h1 class="text-lg font-semibold">
+                                        {{
+                                            image?.description ??
+                                            image?.caption ??
+                                            "No description"
+                                        }}
+                                    </h1>
+                                </CardHeader>
+                                <CardContent class="space-y-2">
+                                    <p class="text-sm">
+                                        Original URI:
+                                        <NuxtLink
+                                            class="underline"
+                                            :to="image?.original"
+                                            :external="true"
+                                            target="_blank"
+                                        >
+                                            {{ image?.original }}
+                                        </NuxtLink>
+                                    </p>
+                                </CardContent>
+                            </Card>
                             <div class="space-y-4">
                                 <SnippetCode
                                     label="Markdown"
@@ -142,12 +158,10 @@ const html = computed(() => {
                                 />
                                 <SnippetCode label="HTML" :code="html" />
                             </div>
-                        </ClientOnly>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </ClientOnly>
     </main>
 </template>
-
-<style scoped></style>

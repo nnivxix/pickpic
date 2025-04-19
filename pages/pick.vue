@@ -71,12 +71,13 @@ const html = computed(() => {
     <main>
         <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
             <form class="grid grid-cols-6 gap-4" @submit.prevent="pick">
-                <Input
-                    v-model="form.url"
-                    aria-rowcount="3"
-                    class="col-span-5"
-                />
-                <Button class="col-span-1">Pick</Button>
+                <Input v-model="form.url" class="md:col-span-5 col-span-full" />
+                <Button class="md:col-span-1 col-span-full">Pick</Button>
+                <ClientOnly>
+                    <div v-if="status === 'error'" class="col-span-full">
+                        <p class="text-destructive">{{ error }}</p>
+                    </div>
+                </ClientOnly>
             </form>
         </div>
         <ClientOnly>
@@ -84,9 +85,7 @@ const html = computed(() => {
                 <div v-if="status === 'loading'">
                     <p>Loading...</p>
                 </div>
-                <div v-if="status === 'error'">
-                    <p class="text-destructive">Error: {{ error }}</p>
-                </div>
+
                 <div v-if="status === 'success'" class="container mx-auto py-8">
                     <div class="grid grid-cols-2 gap-4 h-full">
                         <div class="col-span-full md:col-span-1">

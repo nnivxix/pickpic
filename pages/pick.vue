@@ -72,7 +72,12 @@ const html = computed(() => {
         <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
             <form class="grid grid-cols-6 gap-4" @submit.prevent="pick">
                 <Input v-model="form.url" class="md:col-span-5 col-span-full" />
-                <Button class="md:col-span-1 col-span-full">Pick</Button>
+                <Button
+                    :isLoading="status === 'loading'"
+                    :disabled="status === 'loading'"
+                    class="md:col-span-1 col-span-full"
+                    >Pick</Button
+                >
                 <ClientOnly>
                     <div v-if="status === 'error'" class="col-span-full">
                         <p class="text-destructive">{{ error }}</p>

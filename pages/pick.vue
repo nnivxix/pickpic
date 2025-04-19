@@ -3,46 +3,51 @@ import type { ImageResponse } from "~/types/image";
 
 const { query } = useRoute();
 
-const { form, status, error, image, pick } = usePickImage(query.url as string);
+const url = ref(query.url as string);
 
-const { data: responseImage, error: errorImage } =
-    await useAsyncData<ImageResponse>(
-        "image",
-        () =>
-            $fetch("/api/pick", {
-                method: "POST",
-                body: { ...form.value },
-            }),
-        {
-            immediate: query.url ? true : false,
-        }
-    );
+const {
+    data: image,
+    error,
+    status,
+    execute,
+} = await useAsyncData<ImageResponse>(
+    "image",
+    () =>
+        $fetch("/api/pick", {
+            method: "POST",
+            body: { url: url.value },
+        }),
+    {
+        immediate: query.url ? true : false,
+        deep: true,
+    }
+);
 
-if (responseImage.value?.data) {
-    status.value = "success";
-    image.value = responseImage.value.data;
-}
-if (errorImage.value?.data) {
-    status.value = "error";
-    error.value = (errorImage.value.data as { body?: { message: string } }).body
-        ?.message as string;
-}
-
-const { html, markdown } = useSnippet({
-    description: image.value?.description || "",
-    src: image.value?.conversions.at(0)?.src || "",
-    author: image.value?.author.name || "",
+const { html, markdown, refresh } = useSnippet({
+    description: image.value?.data?.description || "",
+    src: image.value?.data?.conversions.at(0)?.src || "",
+    author: image.value?.data?.author.name || "",
 });
+const submit = async () => {
+    if (url.value) {
+        await execute();
+        refresh({
+            description: image.value?.data?.description || "",
+            src: image.value?.data?.conversions.at(0)?.src || "",
+            author: image.value?.data?.author.name || "",
+        });
+    }
+};
 </script>
 
 <template>
     <main>
         <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
-            <form class="grid grid-cols-6 gap-4" @submit.prevent="pick">
-                <Input v-model="form.url" class="md:col-span-5 col-span-full" />
+            <form class="grid grid-cols-6 gap-4" @submit.prevent="submit">
+                <Input v-model="url" class="md:col-span-5 col-span-full" />
                 <Button
-                    :isLoading="status === 'loading'"
-                    :disabled="status === 'loading'"
+                    :isLoading="status === 'pending'"
+                    :disabled="status === 'pending'"
                     class="md:col-span-1 col-span-full"
                     >Pick</Button
                 >
@@ -55,7 +60,7 @@ const { html, markdown } = useSnippet({
         </div>
         <ClientOnly>
             <div class="max-w-7xl mx-auto px-4">
-                <div v-if="status === 'loading'">
+                <div v-if="status === 'pending'">
                     <p>Loading...</p>
                 </div>
 
@@ -65,13 +70,13 @@ const { html, markdown } = useSnippet({
                             <div
                                 class="col-span-1 overflow-clip aspect-square rounded-lg"
                                 :style="{
-                                    backgroundColor: image?.color,
+                                    backgroundColor: image?.data?.color,
                                 }"
                             >
                                 <img
-                                    v-if="image"
-                                    :src="image.conversions.at(0)?.src"
-                                    :alt="image.description"
+                                    v-if="image?.data?.conversions.at(0)?.src"
+                                    :src="image?.data?.conversions.at(0)?.src"
+                                    :alt="image?.data?.description"
                                     class="w-full h-full object-contain rounded-lg shadow-lg"
                                 />
                             </div>
@@ -80,15 +85,15 @@ const { html, markdown } = useSnippet({
                             >
                                 <span class="">Photo by: </span>
                                 <NuxtLink
-                                    :to="image?.author.link"
+                                    :to="image?.data?.author.link"
                                     class="underline"
                                     target="_blank"
                                 >
-                                    {{ image?.author.name }}
+                                    {{ image?.data?.author.name }}
                                 </NuxtLink>
                                 <span class=""> on </span>
                                 <NuxtLink
-                                    :to="image?.original"
+                                    :to="image?.data?.original"
                                     class="underline"
                                     target="_blank"
                                 >
@@ -103,8 +108,8 @@ const { html, markdown } = useSnippet({
                                 <CardHeader>
                                     <h1 class="text-lg font-semibold">
                                         {{
-                                            image?.description ??
-                                            image?.caption ??
+                                            image?.data?.description ??
+                                            image?.data?.caption ??
                                             "No description"
                                         }}
                                     </h1>
@@ -114,11 +119,11 @@ const { html, markdown } = useSnippet({
                                         Original URI:
                                         <NuxtLink
                                             class="underline"
-                                            :to="image?.original"
+                                            :to="image?.data?.original"
                                             :external="true"
                                             target="_blank"
                                         >
-                                            {{ image?.original }}
+                                            {{ image?.data?.original }}
                                         </NuxtLink>
                                     </p>
                                 </CardContent>

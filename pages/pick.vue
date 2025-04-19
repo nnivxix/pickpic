@@ -1,36 +1,9 @@
 <script setup lang="ts">
-import type { Image, ImageResponse } from "~/types/image";
-import { FetchError } from "ofetch";
+import type { ImageResponse } from "~/types/image";
 
 const { query } = useRoute();
 
-const form = ref({
-    url: query.url as string,
-});
-const status = ref<"idle" | "loading" | "success" | "error">("idle");
-const error = ref<string | null>(null);
-const image = ref<Image>();
-
-const pick = async () => {
-    try {
-        status.value = "loading";
-        const data = await $fetch<ImageResponse>("/api/pick", {
-            method: "POST",
-            body: { ...form.value },
-        });
-        if (data.data) {
-            status.value = "success";
-            image.value = data.data;
-        }
-    } catch (e) {
-        console.error("Error picking:", e);
-        status.value = "error";
-
-        if (e instanceof FetchError) {
-            error.value = e.data.body.message;
-        }
-    }
-};
+const { form, status, error, image, pick } = usePickImage(query.url as string);
 
 const { data: responseImage, error: errorImage } =
     await useAsyncData<ImageResponse>(
@@ -55,15 +28,10 @@ if (errorImage.value?.data) {
         ?.message as string;
 }
 
-const markdown = computed(() => {
-    return `![${image.value?.description || image.value?.caption} by ${
-        image.value?.author.name
-    }](${image.value?.conversions.at(0)?.src})`;
-});
-const html = computed(() => {
-    return `<img src="${image.value?.conversions.at(0)?.src}" alt="${
-        image.value?.description || image.value?.caption
-    } by ${image.value?.author.name}" />`;
+const { html, markdown } = useSnippet({
+    description: image.value?.description || "",
+    src: image.value?.conversions.at(0)?.src || "",
+    author: image.value?.author.name || "",
 });
 </script>
 

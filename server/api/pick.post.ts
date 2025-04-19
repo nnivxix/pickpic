@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
             body: {
                 message: "URL is required",
             },
+            data: null,
         };
     }
 
@@ -25,6 +26,7 @@ export default defineEventHandler(async (event) => {
             body: {
                 message: "URL must be from Unsplash",
             },
+            data: null,
         };
     }
 
@@ -38,6 +40,18 @@ export default defineEventHandler(async (event) => {
         const scriptTag = document("script[type='application/ld+json']").text();
         const imageObject: Photo = JSON.parse(scriptTag);
 
+        if (!imageObject.isAccessibleForFree) {
+            setResponseStatus(event, 403, "Forbidden");
+            setResponseHeader(event, "Content-Type", "application/json");
+            return {
+                statusCode: 403,
+                body: {
+                    message: "Image is not accessible for free",
+                },
+                data: null,
+            };
+        }
+
         const description = document(
             "button[aria-label='Zoom in on this image']"
         )
@@ -49,6 +63,15 @@ export default defineEventHandler(async (event) => {
         const height = document("button[aria-label='Zoom in on this image']")
             .children("img")
             .attr("height");
+
+        const color = document("button[aria-label='Zoom in on this image']")
+            .children("img")
+            .attr("style")
+            ?.match(/background-color:\s*([^;]+)/)
+            ?.at(1);
+
+        const authorLink = document("a[href^='/@']").attr("href");
+
         const image = document("button[aria-label='Zoom in on this image']")
             .children("img")
             .attr("src");
@@ -67,15 +90,23 @@ export default defineEventHandler(async (event) => {
                 }) || [];
 
         return {
-            original: body.url,
-            description: imageObject.description || description,
-            caption: imageObject.caption,
-            width: Number(width),
-            height: Number(height),
-            src: image,
-            conversions: images,
-            author: {
-                name: imageObject.author.name,
+            statusCode: 200,
+            body: {
+                message: "Success",
+            },
+            data: {
+                original: body.url,
+                description: imageObject.description || description,
+                caption: imageObject.caption,
+                width: Number(width),
+                height: Number(height),
+                src: image,
+                color,
+                conversions: images,
+                author: {
+                    name: imageObject.author.name,
+                    link: `https://unsplash.com${authorLink}`,
+                },
             },
         };
     } catch (error) {
@@ -86,6 +117,7 @@ export default defineEventHandler(async (event) => {
             body: {
                 message: "Error fetching data",
             },
+            data: null,
         };
     }
 });

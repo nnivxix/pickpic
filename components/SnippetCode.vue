@@ -15,19 +15,7 @@ const copyText = async () => {
         return;
     }
 
-    if (!downloadUrl) {
-        toast({
-            title: "No download URL provided",
-        });
-        return;
-    }
-
     try {
-        await $fetch("/api/photos/download", {
-            params: {
-                location: downloadUrl,
-            },
-        });
         await copy(code);
         toast({
             title: "Copied to clipboard",

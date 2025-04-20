@@ -23,19 +23,9 @@ const {
     }
 );
 
-const { html, markdown, refresh } = useSnippet({
-    description: image.value?.data?.description || "",
-    src: image.value?.data?.conversions.at(0)?.src || "",
-    author: image.value?.data?.author.name || "",
-});
 const submit = async () => {
     if (url.value) {
         await execute();
-        refresh({
-            description: image.value?.data?.description || "",
-            src: image.value?.data?.conversions.at(0)?.src || "",
-            author: image.value?.data?.author.name || "",
-        });
     }
 };
 </script>
@@ -128,12 +118,15 @@ const submit = async () => {
                                     </p>
                                 </CardContent>
                             </Card>
-                            <div class="space-y-4">
+                            <div class="space-y-4" v-if="image?.data">
                                 <SnippetCode
                                     label="Markdown"
-                                    :code="markdown"
+                                    :code="createMarkdownTemplate(image?.data)"
                                 />
-                                <SnippetCode label="HTML" :code="html" />
+                                <SnippetCode
+                                    label="HTML"
+                                    :code="createHtmlTemplate(image?.data)"
+                                />
                             </div>
                         </div>
                     </div>

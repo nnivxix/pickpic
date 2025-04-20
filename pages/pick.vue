@@ -34,7 +34,13 @@ const submit = async () => {
     <main>
         <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
             <form class="grid grid-cols-6 gap-4" @submit.prevent="submit">
-                <Input v-model="url" class="md:col-span-5 col-span-full" />
+                <Input
+                    v-model="url"
+                    class="md:col-span-5 col-span-full"
+                    autofocus
+                    type="url"
+                    placeholder="https://unsplash.com/photos/abc123"
+                />
                 <Button
                     :isLoading="status === 'pending'"
                     :disabled="status === 'pending'"
@@ -43,14 +49,16 @@ const submit = async () => {
                 >
                 <ClientOnly>
                     <div v-if="status === 'error'" class="col-span-full">
-                        <p class="text-destructive">{{ error }}</p>
+                        <p class="text-destructive">
+                            {{ (error?.data as any)?.body?.message }}
+                        </p>
                     </div>
                 </ClientOnly>
             </form>
         </div>
         <ClientOnly>
             <div class="max-w-7xl mx-auto px-4">
-                <div v-if="status === 'pending'">
+                <div class="text-center" v-if="status === 'pending'">
                     <p>Loading...</p>
                 </div>
 

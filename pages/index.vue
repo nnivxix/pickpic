@@ -2,11 +2,6 @@
 import API_PATH from "~/constants/API_PATH";
 import type { Photo } from "~/types/photo";
 
-await navigateTo("/pick", {
-    replace: true,
-    redirectCode: 301,
-});
-
 const { arrivedState } = useScroll(document);
 const page = ref(1);
 

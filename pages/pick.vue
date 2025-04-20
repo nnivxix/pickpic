@@ -23,6 +23,24 @@ const {
     }
 );
 
+const textAreaUpdate = (event: Event) => {
+    const target = event.target as HTMLTextAreaElement;
+    const maxRows = 5;
+    const lineHeight = 20; // Approximate line height in pixels
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
+    const padding = 10; // Approximate padding in pixels
+    const hasOverflow = scrollHeight > clientHeight + padding;
+
+    if (hasOverflow) {
+        const rows = Math.min(Math.floor(scrollHeight / lineHeight), maxRows);
+        target.rows = rows;
+    }
+};
+
+const setDefaultRows = (event: Event) => {
+    if (event.target) (event.target as HTMLTextAreaElement).rows = 1;
+};
 const submit = async () => {
     if (url.value) {
         await execute();
@@ -34,11 +52,15 @@ const submit = async () => {
     <main>
         <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
             <form class="grid grid-cols-6 gap-4" @submit.prevent="submit">
-                <Input
+                <Textarea
+                    rows="1"
                     v-model="url"
-                    class="md:col-span-5 col-span-full"
+                    class="md:col-span-5 col-span-full min-h-auto"
                     autofocus
-                    type="url"
+                    @keydown.enter.prevent="submit"
+                    @focus="textAreaUpdate($event)"
+                    @blur="setDefaultRows($event)"
+                    @input="textAreaUpdate($event)"
                     placeholder="https://unsplash.com/photos/abc123"
                 />
                 <Button

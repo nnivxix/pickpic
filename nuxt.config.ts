@@ -33,10 +33,6 @@ export default defineNuxtConfig({
     ],
     runtimeConfig: {
         public: {
-            unsplash: {
-                accessKey: process.env.NUXT_UNSPLASH_ACCESS_KEY,
-                baseUrl: process.env.NUXT_UNSPLASH_BASE_URL,
-            },
             appUrl: process.env.NUXT_APP_URL,
         },
     },

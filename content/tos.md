@@ -8,7 +8,7 @@ Welcome to Pickpik! By accessing or using our website, you agree to be bound by 
 Pickpik is a web application that allows users to pick image from the Unsplash platform and generate markdown image links for easy embedding.
 
 2. Use of Unsplash API
-All images and metadata are sourced from the Unsplash API. By using Pickpik, you also agree to abide by Unsplash’s Terms of Service.
+All images and metadata are sourced from the Unsplash API. By using Pickpik, you also agree to abide by [Unsplash’s Terms of Service](https://unsplash.com/terms).
 
 3. User Responsibilities
 You may not misuse the service or interfere with its normal operation.

@@ -11,7 +11,7 @@ Pickpik does not collect or store any personal information unless explicitly sta
 You can use Pickpik without signing up or providing any personal data.
 
 3. Third-Party Services
-We use the Unsplash API to fetch images. We do not control how Unsplash handles user data. Please refer to Unsplash’s Privacy Policy for more details.
+We use the Unsplash API to fetch images. We do not control how Unsplash handles user data. Please refer to [Unsplash’s Privacy Policy](https://unsplash.com/privacy) for more details.
 
 4. Cookies
 Pickpik may use minimal cookies (if any) to ensure smooth performance. We do not use cookies for tracking or advertising.

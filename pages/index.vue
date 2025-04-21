@@ -42,9 +42,10 @@ const setDefaultRows = (event: Event) => {
   if (event.target) (event.target as HTMLTextAreaElement).rows = 1;
 };
 const submit = async () => {
-  if (url.value) {
-    await execute();
+  if (!url.value) {
+    return;
   }
+  await execute();
 };
 </script>
 
@@ -53,14 +54,16 @@ const submit = async () => {
     <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
       <form class="grid grid-cols-6 gap-4" @submit.prevent="submit">
         <Textarea
+          id="url"
           rows="1"
-          v-model="url"
-          class="md:col-span-5 col-span-full min-h-auto"
+          name="url"
           autofocus
-          @keydown.enter.prevent="submit"
-          @focus="textAreaUpdate($event)"
+          v-model="url"
           @blur="setDefaultRows($event)"
           @input="textAreaUpdate($event)"
+          @focus="textAreaUpdate($event)"
+          @keydown.enter.prevent="submit"
+          class="md:col-span-5 col-span-full min-h-auto"
           placeholder="https://unsplash.com/photos/abc123"
         />
         <Button

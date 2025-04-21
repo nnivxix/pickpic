@@ -29,6 +29,7 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@vueuse/nuxt",
+    "@nuxt/content",
   ],
   runtimeConfig: {
     public: {

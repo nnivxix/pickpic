@@ -4,6 +4,9 @@ import type { ImageResponse } from "~/types/image";
 const { query } = useRoute();
 
 const url = ref(query.url as string);
+const session = useSessionStorage("url", () => {
+  return url.value;
+});
 
 const {
   data: image,
@@ -12,11 +15,15 @@ const {
   execute,
 } = await useAsyncData<ImageResponse>(
   "image",
-  () =>
-    $fetch("/api/pick", {
+  () => {
+    if (query.url) {
+      session.value = query.url as string;
+    }
+    return $fetch("/api/pick", {
       method: "POST",
       body: { url: url.value },
-    }),
+    });
+  },
   {
     immediate: query.url ? true : false,
     deep: true,
@@ -41,11 +48,23 @@ const textAreaUpdate = (event: Event) => {
 const setDefaultRows = (event: Event) => {
   if (event.target) (event.target as HTMLTextAreaElement).rows = 1;
 };
+
 const submit = async () => {
-  if (url.value) {
-    await execute();
+  if (!url.value) {
+    return;
   }
+  if (session.value === url.value) {
+    return;
+  }
+
+  session.value = url.value;
+
+  await execute();
 };
+
+onMounted(() => {
+  session.value = null;
+});
 </script>
 
 <template>
@@ -53,14 +72,16 @@ const submit = async () => {
     <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
       <form class="grid grid-cols-6 gap-4" @submit.prevent="submit">
         <Textarea
+          id="url"
           rows="1"
-          v-model="url"
-          class="md:col-span-5 col-span-full min-h-auto"
+          name="url"
           autofocus
-          @keydown.enter.prevent="submit"
-          @focus="textAreaUpdate($event)"
+          v-model="url"
           @blur="setDefaultRows($event)"
           @input="textAreaUpdate($event)"
+          @focus="textAreaUpdate($event)"
+          @keydown.enter.prevent="submit"
+          class="md:col-span-5 col-span-full min-h-auto"
           placeholder="https://unsplash.com/photos/abc123"
         />
         <Button

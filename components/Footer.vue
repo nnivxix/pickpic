@@ -3,11 +3,11 @@ const { title } = useAppConfig();
 const links = [
   {
     name: "Term of Service",
-    href: "/#",
+    href: "/terms-of-service",
   },
   {
     name: "Privacy Policy",
-    href: "/#",
+    href: "/privacy",
   },
 ];
 </script>

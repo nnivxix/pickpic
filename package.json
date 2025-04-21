@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/content": "^3.4.0",
     "@nuxt/fonts": "0.11.0",
     "@nuxt/icon": "1.11.0",
     "@nuxt/image": "1.9.0",
@@ -30,6 +31,7 @@
   "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.13.2",
+    "@tailwindcss/typography": "^0.5.16",
     "@vueuse/nuxt": "^13.0.0"
   }
 }

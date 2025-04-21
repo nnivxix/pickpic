@@ -7,7 +7,7 @@ const links = [
   },
   {
     name: "Privacy Policy",
-    href: "/#",
+    href: "/privacy",
   },
 ];
 </script>

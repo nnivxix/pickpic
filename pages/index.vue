@@ -4,6 +4,9 @@ import type { ImageResponse } from "~/types/image";
 const { query } = useRoute();
 
 const url = ref(query.url as string);
+const session = useSessionStorage("url", () => {
+  return url.value;
+});
 
 const {
   data: image,
@@ -12,11 +15,15 @@ const {
   execute,
 } = await useAsyncData<ImageResponse>(
   "image",
-  () =>
-    $fetch("/api/pick", {
+  () => {
+    if (query.url) {
+      session.value = query.url as string;
+    }
+    return $fetch("/api/pick", {
       method: "POST",
       body: { url: url.value },
-    }),
+    });
+  },
   {
     immediate: query.url ? true : false,
     deep: true,
@@ -41,12 +48,23 @@ const textAreaUpdate = (event: Event) => {
 const setDefaultRows = (event: Event) => {
   if (event.target) (event.target as HTMLTextAreaElement).rows = 1;
 };
+
 const submit = async () => {
   if (!url.value) {
     return;
   }
+  if (session.value === url.value) {
+    return;
+  }
+
+  session.value = url.value;
+
   await execute();
 };
+
+onMounted(() => {
+  session.value = null;
+});
 </script>
 
 <template>

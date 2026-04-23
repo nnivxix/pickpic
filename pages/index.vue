@@ -25,7 +25,7 @@ const {
     if (query.url) {
       session.value = query.url as string;
     }
-    return $fetch("/api/pick", {
+    return $fetch("/api/unsplash", {
       method: "POST",
       body: { url: url.value },
     });

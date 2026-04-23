@@ -32,6 +32,7 @@ export default defineNuxtConfig({
     "@nuxt/content",
   ],
   runtimeConfig: {
+    unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY,
     public: {
       appUrl: process.env.NUXT_APP_URL,
     },

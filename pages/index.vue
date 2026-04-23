@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ImageResponse } from "~/types/image";
+import { useStorage } from "@vueuse/core";
 
 const { query } = useRoute();
 
@@ -7,6 +8,11 @@ const url = ref(query.url as string);
 const session = useSessionStorage("url", () => {
   return url.value;
 });
+
+const history = useStorage<{ id: string; url: string; image: string }[]>(
+  "history",
+  [],
+);
 
 const {
   data: image,
@@ -27,7 +33,7 @@ const {
   {
     immediate: query.url ? true : false,
     deep: true,
-  }
+  },
 );
 
 const textAreaUpdate = (event: Event) => {
@@ -50,16 +56,46 @@ const setDefaultRows = (event: Event) => {
 };
 
 const submit = async () => {
-  if (!url.value) {
-    return;
-  }
-  if (session.value === url.value) {
-    return;
-  }
+  try {
+    if (!url.value) {
+      return;
+    }
+    // if (session.value === url.value) {
+    //   return;
+    // }
 
-  session.value = url.value;
+    session.value = url.value;
+    await execute();
 
-  await execute();
+    // Save to history if successful
+    // max history length is 20
+    // and no duplicate urls
+    // each history item is { id: string, url: string, image: string }
+    // if url already exists, move it to the top
+    // otherwise add it to the top
+    // if history length exceeds 20, remove the last item
+    if (status.value === "success" && image.value) {
+      const existingIndex = history.value.findIndex(
+        (item) => item.image === image.value?.data?.conversions.at(0)?.src,
+      );
+      if (existingIndex !== -1) {
+        history.value.splice(existingIndex, 1);
+      }
+      const id =
+        url.value.split("/").pop() ??
+        Math.random().toString(36).substring(2, 8);
+      if (history.value.length >= 20) {
+        history.value.pop();
+      }
+      history.value.unshift({
+        id: id,
+        url: url.value,
+        image: image.value.data?.conversions.at(0)?.src ?? "",
+      });
+    }
+  } catch (error) {
+    console.error("Error during submission:", error);
+  }
 };
 
 onMounted(() => {

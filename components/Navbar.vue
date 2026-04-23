@@ -4,6 +4,10 @@ const navigation = [
     name: "About",
     link: "/about",
   },
+  {
+    name: "History",
+    link: "/history",
+  },
 ];
 </script>
 

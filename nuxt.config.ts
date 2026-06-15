@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
   compatibilityDate: "2025-03-24",
 
@@ -21,29 +22,40 @@ export default defineNuxtConfig({
       ],
     },
   },
+
+  css: ['~/assets/css/tailwind.css'],
+
   devtools: { enabled: true },
+
   modules: [
     "@nuxt/icon",
     "@nuxt/image",
     "@nuxt/fonts",
-    "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
     "@vueuse/nuxt",
     "@nuxt/content",
   ],
+
   runtimeConfig: {
     unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY,
     public: {
       appUrl: process.env.NUXT_APP_URL,
     },
   },
+
   shadcn: {
     prefix: "",
-    componentDir: "./components/ui",
+    componentDir: "@/components/ui",
   },
 
   experimental: {
     asyncContext: true,
     typedPages: true,
+  },
+
+  vite: {
+    plugins: [
+      tailwindcss(),
+    ],
   },
 });

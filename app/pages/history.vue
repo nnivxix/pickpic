@@ -15,6 +15,11 @@ const deleteImage = (id: string) => {
       title: "Image removed from history",
     });
   } catch (error) {
+    toast({
+      title: "Failed to remove image",
+      description: "Please try again.",
+      variant: "destructive",
+    });
     console.error("Error removing image from localStorage:", error);
   }
 };

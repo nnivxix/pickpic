@@ -173,8 +173,8 @@ onMounted(() => {
               </CardContent>
             </Card>
             <div class="space-y-4" v-if="image?.data">
-              <SnippetCode label="Markdown" :code="createMarkdownTemplate(image?.data)" />
-              <SnippetCode label="HTML" :code="createHtmlTemplate(image?.data)" />
+              <SnippetCode label="Markdown" , :image="image.data" />
+              <SnippetCode label="HTML" :image="image.data" />
             </div>
           </div>
         </div>

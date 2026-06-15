@@ -1,4 +1,4 @@
-import type { Image } from "~/types/image";
+import type { Image, ConversionWidth } from "~/types/image";
 
 interface UnsplashPhoto {
   id: string;
@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
 
     const conversions = Object.entries(photo.urls).map(([key, src]) => ({
       src,
-      width: key,
+      width: key as ConversionWidth,
     }));
 
     const data: Image = {

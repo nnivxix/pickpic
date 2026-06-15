@@ -1,3 +1,5 @@
+export type ConversionWidth = 'raw' | 'full' | 'regular' | 'small' | 'thumb'
+
 export interface Image {
   original: string;
   author: {
@@ -13,7 +15,7 @@ export interface Image {
   src: string;
   conversions: {
     src: string;
-    width: string;
+    width: ConversionWidth;
   }[];
 }
 

@@ -1,0 +1,195 @@
+<script setup lang="ts">
+import type { Image, ImageResponse } from "~/types/image";
+import { useStorage } from "@vueuse/core";
+
+const { query } = useRoute();
+
+const url = ref(query.url as string);
+const session = useSessionStorage("url", () => {
+  return url.value;
+});
+
+const history = useStorage<{ id: string; url: string; image: string }[]>(
+  "history",
+  [],
+);
+
+const {
+  data: image,
+  error,
+  status,
+  execute,
+} = await useAsyncData<ImageResponse>(
+  "image",
+  () => {
+    if (query.url) {
+      session.value = query.url as string;
+    }
+    return $fetch("/api/unsplash", {
+      method: "POST",
+      body: { url: url.value },
+    });
+  },
+  {
+    immediate: query.url ? true : false,
+    deep: true,
+  },
+);
+
+const textAreaUpdate = (event: Event) => {
+  const target = event.target as HTMLTextAreaElement;
+  const maxRows = 5;
+  const lineHeight = 20; // Approximate line height in pixels
+  const scrollHeight = target.scrollHeight;
+  const clientHeight = target.clientHeight;
+  const padding = 10; // Approximate padding in pixels
+  const hasOverflow = scrollHeight > clientHeight + padding;
+
+  if (hasOverflow) {
+    const rows = Math.min(Math.floor(scrollHeight / lineHeight), maxRows);
+    target.rows = rows;
+  }
+};
+
+const setDefaultRows = (event: Event) => {
+  if (event.target) (event.target as HTMLTextAreaElement).rows = 1;
+};
+
+const getImage = (conversion?: Image['conversions']) => {
+  if (!conversion) return '';
+  // get small image for preview first
+  const smallImage = conversion.find((conv) => conv.width === 'small');
+  if (smallImage) return smallImage.src;
+
+  return conversion.find((conv) => conv.width === 'regular')?.src ?? conversion.at(-1)?.src ?? '';
+}
+
+const submit = async () => {
+  try {
+    if (!url.value) {
+      return;
+    }
+    // if (session.value === url.value) {
+    //   return;
+    // }
+
+    session.value = url.value;
+    await execute();
+
+    // Save to history if successful
+    // max history length is 20
+    // and no duplicate urls
+    // each history item is { id: string, url: string, image: string }
+    // if url already exists, move it to the top
+    // otherwise add it to the top
+    // if history length exceeds 20, remove the last item
+    if (status.value === "success" && image.value) {
+      const existingIndex = history.value.findIndex(
+        (item) => item.image === image.value?.data?.conversions.at(0)?.src,
+      );
+      if (existingIndex !== -1) {
+        history.value.splice(existingIndex, 1);
+      }
+      const id =
+        url.value.split("/").pop() ??
+        Math.random().toString(36).substring(2, 8);
+      if (history.value.length >= 20) {
+        history.value.pop();
+      }
+      history.value.unshift({
+        id: id,
+        url: url.value,
+        image: image.value.data?.conversions.at(0)?.src ?? "",
+      });
+    }
+  } catch (error) {
+    console.error("Error during submission:", error);
+  }
+};
+
+onMounted(() => {
+  session.value = null;
+});
+</script>
+
+<template>
+<main>
+  <div class="max-w-3xl mx-auto px-4 pt-8 pb-4">
+    <form class="grid grid-cols-6 gap-4" @submit.prevent="submit">
+      <Textarea id="url" rows="1" name="url" autofocus v-model="url" @blur="setDefaultRows($event)"
+        @input="textAreaUpdate($event)" @focus="textAreaUpdate($event)" @keydown.enter.prevent="submit"
+        class="md:col-span-5 col-span-full min-h-auto" placeholder="https://unsplash.com/photos/abc123" />
+      <Button :isLoading="status === 'pending'" :disabled="status === 'pending'"
+        class="md:col-span-1 col-span-full">Pick</Button>
+      <div class="col-span-full text-center">
+        <NuxtLink to="https://unsplash.com" :external="true" target="_blank" class="underline text-sm">
+          Get Image URL from Unsplash
+        </NuxtLink>
+      </div>
+      <ClientOnly>
+        <div v-if="status === 'error'" class="col-span-full">
+          <p class="text-destructive">
+            {{ (error?.data as any)?.body?.message }}
+          </p>
+        </div>
+      </ClientOnly>
+    </form>
+  </div>
+  <ClientOnly>
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center" v-if="status === 'pending'">
+        <p>Loading...</p>
+      </div>
+
+      <div v-if="status === 'success'" class="container mx-auto py-8">
+        <div class="grid grid-cols-2 gap-4 h-full">
+          <div class="col-span-full md:col-span-1">
+            <div class="col-span-1 overflow-clip aspect-square rounded-lg" :style="{
+              backgroundColor: image?.data?.color,
+            }">
+              <img v-if="getImage(image?.data?.conversions)" :src="getImage(image?.data?.conversions)"
+                :data-image="getImage(image?.data?.conversions)" :alt="image?.data?.description"
+                class="w-full h-full object-contain rounded-lg shadow-lg" />
+            </div>
+            <p class="italic text-sm text-muted-foreground text-center py-2">
+              <span class="">Photo by: </span>
+              <NuxtLink :to="image?.data?.author.link" class="underline" target="_blank">
+                {{ image?.data?.author.name }}
+              </NuxtLink>
+              <span class=""> on </span>
+              <NuxtLink :to="image?.data?.original" class="underline" target="_blank">
+                Unsplash
+              </NuxtLink>
+            </p>
+          </div>
+          <div class="flex flex-col gap-4 md:col-span-1 col-span-full">
+            <Card>
+              <CardHeader>
+                <h1 class="text-lg font-semibold">
+                  {{
+                    image?.data?.description ??
+                    image?.data?.caption ??
+                    "No description"
+                  }}
+                </h1>
+              </CardHeader>
+              <CardContent class="space-y-2">
+                <p class="text-sm">
+                  Original URI:
+                  <NuxtLink class="underline" :to="image?.data?.original" :external="true" target="_blank">
+                    {{ image?.data?.original }}
+                  </NuxtLink>
+                </p>
+              </CardContent>
+            </Card>
+            <div class="space-y-4" v-if="image?.data">
+              <SnippetCode label="Markdown" , :image="image.data" />
+              <SnippetCode label="HTML" :image="image.data" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ClientOnly>
+</main>
+</template>

@@ -44,10 +44,8 @@ export default defineEventHandler(async (event) => {
   }
 
   // Handles: /photos/{id} and /photos/{slug}--{id}
-  const match = body.url.match(
-    /\/photos\/(?:[^/?]+-)?([a-zA-Z0-9_-]+)(?:\?.*)?$/,
-  );
-  if (!match) {
+  const photoId = body.url.split("/photos/").at(1)
+  if (!photoId) {
     setResponseStatus(event, 400, "Bad Request");
     return {
       statusCode: 400,
@@ -55,7 +53,6 @@ export default defineEventHandler(async (event) => {
       data: null,
     };
   }
-  const photoId = match[1];
 
   const config = useRuntimeConfig(event);
   const accessKey = config.unsplashAccessKey;

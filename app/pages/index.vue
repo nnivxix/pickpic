@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ImageResponse } from "~/types/image";
+import type { Image, ImageResponse } from "~/types/image";
 import { useStorage } from "@vueuse/core";
 
 const { query } = useRoute();
@@ -54,6 +54,15 @@ const textAreaUpdate = (event: Event) => {
 const setDefaultRows = (event: Event) => {
   if (event.target) (event.target as HTMLTextAreaElement).rows = 1;
 };
+
+const getImage = (conversion?: Image['conversions']) => {
+  if (!conversion) return '';
+  // get small image for preview first
+  const smallImage = conversion.find((conv) => conv.width === 'small');
+  if (smallImage) return smallImage.src;
+
+  return conversion.find((conv) => conv.width === 'regular')?.src ?? conversion.at(-1)?.src ?? '';
+}
 
 const submit = async () => {
   try {
@@ -138,8 +147,9 @@ onMounted(() => {
             <div class="col-span-1 overflow-clip aspect-square rounded-lg" :style="{
               backgroundColor: image?.data?.color,
             }">
-              <img v-if="image?.data?.conversions.at(0)?.src" :src="image?.data?.conversions.at(0)?.src"
-                :alt="image?.data?.description" class="w-full h-full object-contain rounded-lg shadow-lg" />
+              <img v-if="getImage(image?.data?.conversions)" :src="getImage(image?.data?.conversions)"
+                :data-image="getImage(image?.data?.conversions)" :alt="image?.data?.description"
+                class="w-full h-full object-contain rounded-lg shadow-lg" />
             </div>
             <p class="italic text-sm text-muted-foreground text-center py-2">
               <span class="">Photo by: </span>

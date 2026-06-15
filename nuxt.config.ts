@@ -13,11 +13,11 @@ export default defineNuxtConfig({
         },
         {
           name: "og:image",
-          content: process.env.NUXT_APP_URL + "/og-image.jpg",
+          content: import.meta.env.NUXT_APP_URL + "/og-image.jpg",
         },
         {
           name: "twitter:image",
-          content: process.env.NUXT_APP_URL + "/og-image.jpg",
+          content: import.meta.env.NUXT_APP_URL + "/og-image.jpg",
         },
       ],
     },
@@ -41,6 +41,10 @@ export default defineNuxtConfig({
     public: {
       appUrl: import.meta.env.NUXT_APP_URL,
     },
+  },
+
+  routeRules: {
+    '/history': { ssr: false },
   },
 
   shadcn: {

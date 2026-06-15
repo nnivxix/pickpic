@@ -162,7 +162,7 @@ onMounted(() => {
               </NuxtLink>
             </p>
           </div>
-          <div class="flex flex-col gap-4 justify-between md:col-span-1 col-span-full">
+          <div class="flex flex-col gap-4 md:col-span-1 col-span-full">
             <Card>
               <CardHeader>
                 <h1 class="text-lg font-semibold">
